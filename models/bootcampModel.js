@@ -5,13 +5,13 @@ const bootcampSchema = new mongoose.Schema({
     name: {
         type: String,
         unique : true,
-        required : [true , "The Bootcamp is duplicated"],
+        required : [true , "nombre requerido"],
         maxlength: [20 , "The name must have 20 characters!"]
     },
     phone: {
         type: Number,
-        required : [true , "The phone is duplicated"],
-        maxlength: [10 , "The phone number, must have 10 characters"]
+        required : [true , "telefono requerido"],
+        maxlength: [9999999999 , "The phone number, must have 10 characters"]
     },
     address: {
         type: String,
