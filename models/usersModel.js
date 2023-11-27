@@ -1,25 +1,33 @@
-const mongoose = require('mongoose');
+const bycryptjs = require("bcryptjs");
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Name Required"],
-        maxlength: [40, "The name must have 40 characters!"],
-    
-    },
-    last_name: {
-        type: String,
-        required: [true, "Last Name Required"],
-        maxlength: [40, "The last name must have 40 characters!"],
-    
-    },
+  name: {
+    type: String,
+    required: [true, "Name Required"],
+    maxlength: [40, "The name must have 40 characters!"],
+  },
+  email: {
+    type: String,
+  },
 
-    age:{
-        type:Number,
-        required: [true, "The age is required"],
-        max: [99, "The age should be between 1 and 99"]
-    }
+  password: {
+    type: String,
+  },
+  role: {
+    type: String,
+  },
 });
+
+userSchema.pre("save", async function (next) {
+  const sal = await bycryptjs.genSalt(3);
+
+  this.password = await bycryptjs.hash(this.password, sal);
+});
+
+userSchema.methods.compararPassword = async function (password) {
+  return await bycryptjs.compare(password, this.password);
+};
 
 const user = mongoose.model("users", userSchema);
 

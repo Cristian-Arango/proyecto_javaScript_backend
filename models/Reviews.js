@@ -26,7 +26,6 @@ const ReviewsSchema = new mongoose.Schema({
         ref: 'users', // Referencia al modelo Bootcamp
         required: [true, "The userID is required"]
     },
-    // Otros campos si es necesario
 });
 
 const Reviews = mongoose.model("Reviews", ReviewsSchema);
