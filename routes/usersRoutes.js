@@ -1,50 +1,143 @@
-const express = require('express')
-const router4 = express.Router()
+const express = require("express");
+const usersModel = require("../models/usersModel");
+const { default: mongoose } = require("mongoose");
+const router4 = express.Router();
 
-//USERS
-router4.get('/', (request, response)=>{
-    response.json(
-        {
-            success:true,
-            msg: "Aquí se traerán todos los users"
+//COURSES
+router4.get("/", async (req, res) => {
+    try {
+        const users = await usersModel.find();
+        if (users.length === 0) {
+            res.status(400).json({
+                success: false,
+                msg: "No hay Users",
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                data: users,
+            });
         }
-    )
-})
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: `Error Interno en el servidor ${error.message}`,
+        });
+    }
+});
 
-router4.get('/:id', (req, res)=>{
-    res.json(
-        {
+router4.get("/:id", async (req, res) => {
+    try {
+        //VALIDAR ID MONMGO
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            res.status(400).json({
+                success: false,
+                msg: `Id invalido`,
+            });
+        } else {
+            const users = await usersModel.findById(req.params.id);
+            if (!users) {
+                res.status(400).json({
+                    success: false,
+                    msg: `NO EXISTE EL USER ${req.params.id}`,
+                });
+            } else {
+                //si si existe
+                res.status(200).json({
+                    success: true,
+                    data: users,
+                });
+            }
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: `Error Interno en el servidor ${error.message}`,
+        });
+    }
+});
+
+router4.post("/", async (req, res) => {
+    //Add a new bootcamp
+    try {
+        const newusers = await usersModel.create(req.body);
+        res.status(201).json({
             success: true,
-            msg: `Aquí se traerá el user cuyo id es: ${req.params.id}`
-        }
-    )
-})
+            data: newusers,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: `${error.message}`,
+        });
+    }
+});
 
-router4.post('/', (req, res)=>{
-    res.json(
-        {
-            success: true,
-            msg: `Aquí se creará un user`
+router4.put("/:id", async (req, res) => {
+    try {
+        //VALIDAR ID MONMGO
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            res.status(400).json({
+                success: false,
+                msg: `Id invalido`,
+            });
+        } else {
+            const edituser = await usersModel.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
+            if (!edituser) {
+                res.status(400).json({
+                    success: false,
+                    msg: `EL USER no existe ${req.params.id}`,
+                });
+            } else {
+                res.status(200).json({
+                    success: true,
+                    data: edituser,
+                });
+            }
         }
-    )
-})
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: `${error.message}`,
+        });
+    }
+});
 
-router4.put('/:id', (req, res)=>{
-    res.json(
-        {
-            success: true,
-            msg: `Aquí se editará el user cuyo id es: ${req.params.id}`
+router4.delete("/:id", async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        //VALIDAR ID MONMGO
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            res.status(400).json({
+                success: false,
+                msg: `Id invalido`,
+            });
+        } else {
+            const borrar = await usersModel.findByIdAndDelete(req.params.id);
+            if (!borrar) {
+                res.status(400).json({
+                    success: false,
+                    msg: `EL USER no existe ${req.params.id}`,
+                });
+            } else {
+                res.status(200).json({
+                    success: true,
+                    data: borrar,
+                });
+            }
         }
-    )
-})
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: `${error.message}`,
+        });
+    }
+});
+module.exports = router4;
 
-router4.delete('/:id', (req, res)=>{
-    res.json(
-        {
-            success: true,
-            msg: `Aquí se eliminará el user cuyo id es: ${req.params.id}`
-        }
-    )
-})
-
-module.exports = router4
+//URI
